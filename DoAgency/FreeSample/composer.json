@@ -1,0 +1,23 @@
+{
+  "name": "venchi/free-sample",
+  "version": "1.0",
+  "type": "magento2-module",
+  "description": "This module is designed for Magento 2. Set free products in cart page.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "DoAgency",
+      "email": "info@doagency.it",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.6.0"
+  },
+  "autoload": {
+    "files": [ "registration.php" ],
+    "psr-4": {
+      "Venchi\\FreeSample\\": ""
+    }
+  }
+}

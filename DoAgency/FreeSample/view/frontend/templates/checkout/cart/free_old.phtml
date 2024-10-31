@@ -1,0 +1,54 @@
+<?php
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $cart = $objectManager->get('\Magento\Checkout\Model\Cart');
+
+    //creo un array con gli ID dei prodotti in carrello
+    $items_id_array = array();
+    $items = $cart->getQuote()->getAllItems();
+    foreach($items as $item) {
+        $items_id_array[] = $item->getProductId();
+        
+        $cartHelper = $this->helper('Magento\Checkout\Helper\Cart');
+        $items_id_array[$item->getProductId()] = $cartHelper->getDeletePostJson($item);
+        //echo $cartHelper->getDeletePostJson($item);
+    }
+
+    $max = $block->getMax();
+    $import = $block->getImport();
+    $total = $cart->getQuote()->getGrandTotal();
+?>
+<?php if($import < $total) : ?>
+<h2><?php echo __('Free Products'); ?></h2>
+<div class="free products-grid">
+<?php
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $categoryId = 45;
+    $categoryProducts = $block->getCategoryProducts($categoryId);
+    $imageBlock =  $block->getLayout()->createBlock('Magento\Catalog\Block\Product\ListProduct');
+    
+    echo "<ol class='products list items product-items'>";
+    foreach ($categoryProducts as $product) {
+        echo "<li class='item product product-item tile scale-anm'>";
+        //print_r($product->getData());
+        
+        $addToCartUrl = $objectManager->get('Magento\Checkout\Helper\Cart')->getAddUrl($product);
+        $addToCartUrl.= 'form_key/';
+        
+        //get product image
+        $productImage = $imageBlock->getImage($product, 'category_page_list');
+        echo $productImage->toHtml();
+        echo "<h3>".$product->getName()."</h3>";
+?>
+<?php if(in_array($product->getId(), $items_id_array)) : ?>
+        <input type="checkbox" name="free" value="<?php echo $product->getId(); ?>" url="<?php echo $addToCartUrl; ?>" checked />
+        <a href="#" class="action action-delete remove-<?php echo $product->getId(); ?>" data-post='<?php echo $items_id_array[$product->getId()]; ?>'></a>
+<?php else : ?>
+        <input type="checkbox" name="free" value="<?php echo $product->getId(); ?>" url="<?php echo $addToCartUrl; ?>" />
+<?php endif; ?>
+<?php
+        echo "</li>";
+    }
+    echo "</ol>";
+?>
+</div>
+<?php endif; ?>
